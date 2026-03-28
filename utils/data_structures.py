@@ -1,4 +1,4 @@
-from typing import NamedTuple, Dict, Any
+from typing import Any, Dict, NamedTuple
 
 
 class ExperimentSettings(NamedTuple):

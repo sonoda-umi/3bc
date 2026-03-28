@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Dict, List, Set, Any
+from typing import Any, Dict, Set
 
 import numpy as np
 from fastapi import FastAPI
@@ -9,8 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from config import sample_file_path, solver_info
-from custom_benchmark_problems.diamon_problem.core import algs
-from custom_benchmark_problems.diamon_problem.core import evaluation
+from custom_benchmark_problems.diamon_problem.core import algs, evaluation
 from custom_benchmark_problems.diamon_problem.data_structures.tree import Tree
 from utils import file_utils
 
@@ -35,7 +34,7 @@ def read_root():
 
 @app.get("/api/get_demo_problem")
 def get_demo_problem():
-    json_tree = file_utils.read_json_tree(sample_file_path)
+    json_tree = file_utils.read_json_tree(str(sample_file_path))
     return json_tree
 
 
@@ -109,8 +108,7 @@ def reeb_space_info(dimension: int, tree_name: str):
 
 @app.get("/api/experiment_settings")
 def get_experiment_parameters() -> Dict[str, Any]:
-    """This function get all the available settings in the given data directory
-    """
+    """This function get all the available settings in the given data directory"""
     solvers: Set[str] = set()
     trees: Set[str] = set()
     dimensions: Set[int] = set()
@@ -152,11 +150,7 @@ def get_experiment_parameters() -> Dict[str, Any]:
 
 def match_experiment_file(solver: str, tree: str, dimension: int, termination: str):
     file_name_pattern = f"{solver}_{tree}_{dimension}_{termination}"
-    files = [
-        f
-        for f in os.listdir(data_base_path)
-        if os.path.isfile(data_base_path + f) and f.endswith(".csv")
-    ]
+    files = [f for f in os.listdir(data_base_path) if os.path.isfile(data_base_path + f) and f.endswith(".csv")]
     for file in files:
         if file.startswith(file_name_pattern):
             print("Data path: ", data_base_path + file)
@@ -174,24 +168,18 @@ def match_experiment_file(solver: str, tree: str, dimension: int, termination: s
         # )
         return None, None, None
 
+
 @app.get("/api/demo_data")
 def demo_data(solver: str, tree_name: str, dimension: int, termination: str):
     log_path, exp_tree_path, meta_data_path = match_experiment_file(solver, tree_name, dimension, termination)
     if log_path is None:
-        return JSONResponse(
-            status_code=404,
-            content={"message": "Experiment file not found."}
-        )
-    demo_log = file_utils.load_evaluation_log(log_path)
-    demo_tree = file_utils.read_json_tree(exp_tree_path)
+        return JSONResponse(status_code=404, content={"message": "Experiment file not found."})
+    demo_log = file_utils.load_evaluation_log(str(log_path))
+    demo_tree = file_utils.read_json_tree(str(exp_tree_path))
     sequence_dict = {}
     for node in demo_tree["nodes"]:
         sequence_dict[node["id"]] = node
-        sequence_dict[node["id"]]["label"] = (
-            f"ID: {node['id']},  "
-            f"Symbol: {node['symbol']},"
-            f"Best possible: {node['minima']}"
-        )
+        sequence_dict[node["id"]]["label"] = f"ID: {node['id']},  Symbol: {node['symbol']},Best possible: {node['minima']}"
     link_map = {}
     for link in algs.compute_links(demo_tree):
         source_id = link["source"]
@@ -207,9 +195,7 @@ def demo_data(solver: str, tree_name: str, dimension: int, termination: str):
             {
                 "id": 0,
                 "label": "Root,  ID: 0, Best possible: -1.0",
-                "children": construct_tree_structure(
-                    0, link_map, sequence_dict=sequence_dict
-                ),
+                "children": construct_tree_structure(0, link_map, sequence_dict=sequence_dict),
             }
         ],
         "solver_log": demo_log,
@@ -221,9 +207,7 @@ def construct_tree_structure(current_key, links_map: dict, sequence_dict: dict):
     result = []
     for sub_key in links_map[current_key]:
         if sub_key in links_map.keys():
-            sequence_dict[sub_key]["children"] = construct_tree_structure(
-                sub_key, links_map, sequence_dict
-            )
+            sequence_dict[sub_key]["children"] = construct_tree_structure(sub_key, links_map, sequence_dict)
             result.append(sequence_dict[sub_key])
         else:
             result.append(sequence_dict[sub_key])

@@ -35,9 +35,7 @@ class NBMP(BMP):
         degrees : float, the rotation angle commonly refer as theta
         clockwise : bool, if the positive rotation direction is clockwise
         """
-        super().__init__(
-            sequence_info=sequence_info, dim_space=dim_space, rotate=rotate
-        )
+        super().__init__(sequence_info=sequence_info, dim_space=dim_space, rotate=rotate)
         self.n_objectives = n_objectives
         self.rotate = rotate
         self.t_rotate = t_rotate
@@ -58,28 +56,20 @@ class NBMP(BMP):
     def create_t_rotation_matrix(self):
         n_ts = self.n_objectives - 1
         if n_ts <= 1:
-            raise ValueError(
-                f"At least 3 objectives are required for t rotation operation"
-            )
+            raise ValueError(f"At least 3 objectives are required for t rotation operation")
         dim_list = []
         for i in range(n_ts):
             for j in range(i + 1, n_ts):
                 dim_list.append((i, j))
         base_matrix = np.eye(n_ts)
         for dim_pair in dim_list:
-            base_matrix = base_matrix @ self._rotation_matrix(
-                n=n_ts, dim_pair=dim_pair, theta=self.degrees
-            )
+            base_matrix = base_matrix @ self._rotation_matrix(n=n_ts, dim_pair=dim_pair, theta=self.degrees)
         return base_matrix
 
     def create_rotation_matrix(self):
         if self.n_objectives <= 1:
-            raise ValueError(
-                "At least 2 objectives are required for rotation operation"
-            )
-        return self._rotation_matrix(
-            n=self.n_objectives, dim_pair=(0, 1), theta=self.degrees
-        )
+            raise ValueError("At least 2 objectives are required for rotation operation")
+        return self._rotation_matrix(n=self.n_objectives, dim_pair=(0, 1), theta=self.degrees)
 
     @staticmethod
     def _rotation_matrix(n: int, dim_pair: tuple[int, int], theta: float) -> np.ndarray:
@@ -111,9 +101,7 @@ class NBMP(BMP):
 
     def n_evaluate(self, solution_variables: np.ndarray) -> NEvaluationResult:
         # Preprocessing solution variables
-        bmp_solution_variables, t_s = self.parse_variables(
-            solution_variables=solution_variables
-        )
+        bmp_solution_variables, t_s = self.parse_variables(solution_variables=solution_variables)
         bmp_eval_res = self.evaluate(solution_variables=bmp_solution_variables)
         f_hat = bmp_eval_res.t
         f_1 = f_hat + self.l1_dist(reg_variables=t_s[1:])
@@ -133,14 +121,10 @@ class NBMP(BMP):
     def l1_dist(reg_variables: np.ndarray) -> float:
         return np.sum(np.abs(reg_variables))
 
-    def parse_variables(
-        self, solution_variables: np.ndarray
-    ) -> tuple[np.ndarray, np.ndarray]:
+    def parse_variables(self, solution_variables: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         # Variable format: [t_1, t_2, ... t_(n-1), x_1, x_2, ..., x_n]
         # Takes t_1 and all Xs for original BMP evaluation
-        bmp_variables = np.concatenate(
-            (solution_variables[:1], solution_variables[self.n_objectives - 1 :])
-        )
+        bmp_variables = np.concatenate((solution_variables[:1], solution_variables[self.n_objectives - 1 :]))
         # Takes t_2 to t_(n-1) for the remaining computation
         t_s = solution_variables[: (self.n_objectives - 1)]
         if self.t_rotate:

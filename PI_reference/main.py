@@ -8,8 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from config import sample_file_path, solver_info
-from custom_benchmark_problems.diamon_problem.core import algs
-from custom_benchmark_problems.diamon_problem.core import evaluation
+from custom_benchmark_problems.diamon_problem.core import algs, evaluation
 from custom_benchmark_problems.diamon_problem.data_structures.tree import Tree
 from utils import file_utils
 
@@ -110,12 +109,8 @@ def reeb_space_info(dimension: int, tree_name: str):
 def match_experiment_file(solver: str, tree: str, dimension: int, termination: str):
     file_name_pattern = f"{solver}_{tree}_{dimension}_{termination}"
     print(file_name_pattern)
-    data_base_path = (
-        "/Volumes/l-liu/benchmark-visualizer-exp-data/pop100_50000iter/exp_csvs/"
-    )
-    files = [
-        f for f in os.listdir(data_base_path) if os.path.isfile(data_base_path + f)
-    ]
+    data_base_path = "/Volumes/l-liu/benchmark-visualizer-exp-data/pop100_50000iter/exp_csvs/"
+    files = [f for f in os.listdir(data_base_path) if os.path.isfile(data_base_path + f)]
     for file in files:
         if file.startswith(file_name_pattern):
             return data_base_path + file
@@ -129,11 +124,7 @@ def demo_data(solver: str, tree_name: str, dimension: int, termination: str):
     sequence_dict = {}
     for node in demo_tree["nodes"]:
         sequence_dict[node["id"]] = node
-        sequence_dict[node["id"]]["label"] = (
-            f"Node ID: {node['id']},  "
-            f"Symbol: {node['symbol']},"
-            f"Minimum: {node['minima']}"
-        )
+        sequence_dict[node["id"]]["label"] = f"Node ID: {node['id']},  Symbol: {node['symbol']},Minimum: {node['minima']}"
     link_map = {}
     for link in algs.compute_links(demo_tree):
         source_id = link["source"]
@@ -149,9 +140,7 @@ def demo_data(solver: str, tree_name: str, dimension: int, termination: str):
             {
                 "id": 0,
                 f"label": f"Root,  ID: 0, Minimum: -1.0",
-                "children": construct_tree_structure(
-                    0, link_map, sequence_dict=sequence_dict
-                ),
+                "children": construct_tree_structure(0, link_map, sequence_dict=sequence_dict),
             }
         ],
         "solver_log": demo_log,
@@ -163,9 +152,7 @@ def construct_tree_structure(current_key, links_map: dict, sequence_dict: dict):
     result = []
     for sub_key in links_map[current_key]:
         if sub_key in links_map.keys():
-            sequence_dict[sub_key]["children"] = construct_tree_structure(
-                sub_key, links_map, sequence_dict
-            )
+            sequence_dict[sub_key]["children"] = construct_tree_structure(sub_key, links_map, sequence_dict)
             result.append(sequence_dict[sub_key])
         else:
             result.append(sequence_dict[sub_key])

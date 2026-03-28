@@ -17,9 +17,7 @@ def validate_tree_minima(sequence_data: list, dim_space: int):
     -------
     None
     """
-    sorted_sequence = sorted(
-        sequence_data, key=lambda node: len(node["attrs"]["symbol"])
-    )
+    sorted_sequence = sorted(sequence_data, key=lambda node: len(node["attrs"]["symbol"]))
     t = len(sorted_sequence[-1]["attrs"]["symbol"]) + 5
     minimal_errs = []
     while sorted_sequence:
@@ -29,9 +27,7 @@ def validate_tree_minima(sequence_data: list, dim_space: int):
         solution_variables = np.insert(minimal_coordinates, 0, t, axis=0)
         computed_minimal = bmp.evaluate(solution_variables=solution_variables)
         if computed_minimal[1] < current_node["minima"]:
-            minimal_errs.append(
-                f"Node: {current_node['name']}'s minima value should be less than {computed_minimal[1]}"
-            )
+            minimal_errs.append(f"Node: {current_node['name']}'s minima value should be less than {computed_minimal[1]}")
     if minimal_errs:
         raise ValueError(minimal_errs)
 

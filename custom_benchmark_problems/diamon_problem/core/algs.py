@@ -146,9 +146,7 @@ def compute_intersection(node_1: ParetoInfo, node_2: ParetoInfo) -> list[float]:
 
 
 def slope_(p1: list[float], p2: list[float]) -> float:
-    assert (
-        len(p1) == 2 and len(p2) == 2
-    ), "Inconsistent coordinates length (should be 2)"
+    assert len(p1) == 2 and len(p2) == 2, "Inconsistent coordinates length (should be 2)"
     assert p1[0] != p2[0], "Infinite slope" + str(p1) + str(p2)
     return (p1[1] - p2[1]) / (p1[0] - p2[0])
 

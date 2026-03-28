@@ -7,9 +7,7 @@ class Logger:
 
     @staticmethod
     def setup_custom_logger(name) -> logging.Logger:
-        formatter = logging.Formatter(
-            fmt="%(asctime)s - %(levelname)s - %(module)s - %(message)s"
-        )
+        formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(module)s - %(message)s")
 
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)

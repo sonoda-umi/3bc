@@ -4,18 +4,18 @@ from enum import Enum
 from pathlib import Path
 
 import yaml
-from jmetal.algorithm.multiobjective import NSGAII, MOEAD, OMOPSO, IBEA
+from jmetal.algorithm.multiobjective import IBEA, MOEAD, NSGAII, OMOPSO
 from jmetal.algorithm.multiobjective.gde3 import GDE3
 from jmetal.operator import (
+    DifferentialEvolutionCrossover,
     PolynomialMutation,
     SBXCrossover,
-    DifferentialEvolutionCrossover,
     UniformMutation,
 )
 from jmetal.operator.mutation import NonUniformMutation
 from jmetal.util.aggregative_function import Tschebycheff
 from jmetal.util.archive import CrowdingDistanceArchive
-from jmetal.util.termination_criterion import StoppingByTime, StoppingByEvaluations
+from jmetal.util.termination_criterion import StoppingByEvaluations, StoppingByTime
 from tqdm import tqdm
 
 from custom_benchmark_problems.diamon_problem.apis.jmetal import Diamond
@@ -40,13 +40,9 @@ def gde3(**kwargs):
 
     stopping_criterion = kwargs["termination_criterion"]
     if stopping_criterion["criterion_name"] == "StoppingByTime":
-        termination_criterion = StoppingByTime(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByTime(stopping_criterion["termination_parameter"])
     elif stopping_criterion["criterion_name"] == "StoppingByEvaluations":
-        termination_criterion = StoppingByEvaluations(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByEvaluations(stopping_criterion["termination_parameter"])
     else:
         raise NotImplementedError("Termination criterion not supported")
 
@@ -81,13 +77,9 @@ def nsgaii(**kwargs):
     )
     stopping_criterion = kwargs["termination_criterion"]
     if stopping_criterion["criterion_name"] == "StoppingByTime":
-        termination_criterion = StoppingByTime(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByTime(stopping_criterion["termination_parameter"])
     elif stopping_criterion["criterion_name"] == "StoppingByEvaluations":
-        termination_criterion = StoppingByEvaluations(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByEvaluations(stopping_criterion["termination_parameter"])
     else:
         raise NotImplementedError("Termination criterion not supported")
 
@@ -124,13 +116,9 @@ def ibea(**kwargs):
     )
     stopping_criterion = kwargs["termination_criterion"]
     if stopping_criterion["criterion_name"] == "StoppingByTime":
-        termination_criterion = StoppingByTime(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByTime(stopping_criterion["termination_parameter"])
     elif stopping_criterion["criterion_name"] == "StoppingByEvaluations":
-        termination_criterion = StoppingByEvaluations(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByEvaluations(stopping_criterion["termination_parameter"])
     else:
         raise NotImplementedError("Termination criterion not supported")
 
@@ -168,13 +156,9 @@ def moead(**kwargs):
     aggregative_function = Tschebycheff(dimension=kwargs["exp_config"].dimension + 1)
     stopping_criterion = kwargs["termination_criterion"]
     if stopping_criterion["criterion_name"] == "StoppingByTime":
-        termination_criterion = StoppingByTime(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByTime(stopping_criterion["termination_parameter"])
     elif stopping_criterion["criterion_name"] == "StoppingByEvaluations":
-        termination_criterion = StoppingByEvaluations(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByEvaluations(stopping_criterion["termination_parameter"])
     else:
         raise NotImplementedError("Termination criterion not supported")
 
@@ -185,9 +169,7 @@ def moead(**kwargs):
         crossover=crossover,
         aggregative_function=aggregative_function,
         neighbor_size=parameters["neighbor_size"],
-        neighbourhood_selection_probability=parameters[
-            "neighbourhood_selection_probability"
-        ],
+        neighbourhood_selection_probability=parameters["neighbourhood_selection_probability"],
         max_number_of_replaced_solutions=parameters["max_number_of_replaced_solutions"],
         weight_files_path=parameters["weight_files_path"],
         termination_criterion=termination_criterion,
@@ -224,18 +206,12 @@ def omopso(**kwargs):
         max_iterations=int(25000 / 100),
     )
 
-    leaders = CrowdingDistanceArchive(
-        maximum_size=parameters["leaders"]["maximum_size"]
-    )
+    leaders = CrowdingDistanceArchive(maximum_size=parameters["leaders"]["maximum_size"])
     stopping_criterion = kwargs["termination_criterion"]
     if stopping_criterion["criterion_name"] == "StoppingByTime":
-        termination_criterion = StoppingByTime(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByTime(stopping_criterion["termination_parameter"])
     elif stopping_criterion["criterion_name"] == "StoppingByEvaluations":
-        termination_criterion = StoppingByEvaluations(
-            stopping_criterion["termination_parameter"]
-        )
+        termination_criterion = StoppingByEvaluations(stopping_criterion["termination_parameter"])
     else:
         raise NotImplementedError("Termination criterion not supported")
 
@@ -259,9 +235,7 @@ def load_experiment_settings(file_path: Path) -> typing.List[ExperimentSettings]
 def yaml_main(opts):
     exps_config = load_experiment_settings(file_path=Path(opts.file))
     for exp_config in tqdm(exps_config, desc="Experiment Progress"):
-        with MlflowTracker(
-            run_name=exp_config.experiment_name, experiment_config=exp_config
-        ) as tracker:
+        with MlflowTracker(run_name=exp_config.experiment_name, experiment_config=exp_config) as tracker:
             tree = Tree(dim_space=exp_config.dimension)
             tree.from_json(exp_config.tree_file)
             problem = Diamond(
@@ -281,8 +255,6 @@ def yaml_main(opts):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-f", "--file", type=str, help="Specify the input json file", required=True
-    )
+    parser.add_argument("-f", "--file", type=str, help="Specify the input json file", required=True)
     parser.add_argument("--disable_tracking", action="store_false")
     yaml_main(parser.parse_args())

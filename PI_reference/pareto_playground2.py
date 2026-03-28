@@ -1,12 +1,10 @@
-from utils.local_pareto import get_local_pareto_set
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-from jmetal.core.quality_indicator import GenerationalDistance
-from jmetal.core.quality_indicator import InvertedGenerationalDistance
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from jmetal.core.quality_indicator import GenerationalDistance, InvertedGenerationalDistance
+from utils.local_pareto import get_local_pareto_set
 
 # plt.rcParams.update({
 #     "text.usetex": True,
@@ -60,20 +58,12 @@ def compute_indicators(
     node_indicators = {}
     for node_id in pareto_dict.keys():
         # Generational Distanceの計算
-        set = generation_points_node_x[generation_points_node_x[:, 3] == node_id, :][
-            :, 0:3
-        ]
-        front = generation_points_node_y[generation_points_node_y[:, 2] == node_id, :][
-            :, 0:2
-        ]
+        set = generation_points_node_x[generation_points_node_x[:, 3] == node_id, :][:, 0:3]
+        front = generation_points_node_y[generation_points_node_y[:, 2] == node_id, :][:, 0:2]
 
         if front.size > 0:
-            gd_value = indicator(
-                reference=pareto_dict[node_id]["pareto_front"], actual=front
-            )
-            gdx_value = indicator(
-                reference=pareto_dict[node_id]["pareto_set"], actual=set
-            )
+            gd_value = indicator(reference=pareto_dict[node_id]["pareto_front"], actual=front)
+            gdx_value = indicator(reference=pareto_dict[node_id]["pareto_set"], actual=set)
             # print(f"{indicator_str} for node[{node_id}]: ", gd_value)
             # print(f"{indicator_str} X for node[{node_id}]: ", gdx_value)
             node_indicators[node_id] = {"gd": gd_value, "gdx": gdx_value}
@@ -93,23 +83,15 @@ def compute_indicators(
 #             return data_base_path + file
 
 
-def match_experiment_file(
-    data_base_path: str, solver: str, tree: str, dimension: int, termination: str
-):
+def match_experiment_file(data_base_path: str, solver: str, tree: str, dimension: int, termination: str):
     file_name_pattern = f"{solver}_{tree}_{dimension}_{termination}"
-    files = [
-        f
-        for f in os.listdir(data_base_path)
-        if os.path.isfile(os.path.join(data_base_path, f))
-    ]
+    files = [f for f in os.listdir(data_base_path) if os.path.isfile(os.path.join(data_base_path, f))]
     for file in files:
         if file.startswith(file_name_pattern):
             return os.path.join(data_base_path, file)
 
     # ファイルが見つからなかった場合のエラーメッセージ
-    raise FileNotFoundError(
-        f"No file found for pattern: {file_name_pattern} in {data_base_path}"
-    )
+    raise FileNotFoundError(f"No file found for pattern: {file_name_pattern} in {data_base_path}")
 
 
 def main():
@@ -129,9 +111,7 @@ def main():
     data_base_path = "data/benchmark-visualizer-exp-data/pop100_50000iter/exp_csvs"
 
     # Create a DataFrame to store the results
-    results_global_df = pd.DataFrame(
-        index=["GD", "IGD", "GDX", "IGDX"], columns=solvers
-    )
+    results_global_df = pd.DataFrame(index=["GD", "IGD", "GDX", "IGDX"], columns=solvers)
 
     # Create a DataFrame to store the GD values for each solver and indicator
     gd_values_df = pd.DataFrame()
@@ -151,15 +131,13 @@ def main():
                             termination=termination_criteria,
                         )
 
-                        variables_header_x = [f"x{x+1}" for x in range(dim_space)]
+                        variables_header_x = [f"x{x + 1}" for x in range(dim_space)]
                         variables_header_x.insert(0, "t")
                         variables_header_node_x = variables_header_x + ["eval_node_id"]
                         variables_header_y = ["y1", "y2"]
                         variables_header_node_y = variables_header_y + ["eval_node_id"]
 
-                        pareto_dict, all_sets, all_fronts = get_local_pareto_set(
-                            dimension=dim_space, tree_name=tree_name
-                        )
+                        pareto_dict, all_sets, all_fronts = get_local_pareto_set(dimension=dim_space, tree_name=tree_name)
                         experiment_record = pd.read_csv(data_file, index_col=0)
 
                         for generation in generations:
@@ -167,21 +145,11 @@ def main():
                             # print(f"*** Computing indicators for tree: {tree_name}, dimension: {dim_space}, solver: {solver_name}, generation: {generation}, termination: {termination_criteria} ***")
                             # print()
                             starting_point = generation * population_size
-                            generation_df = experiment_record.iloc[
-                                starting_point : starting_point + population_size
-                            ]
-                            generation_points_x = generation_df[
-                                variables_header_x
-                            ].values
-                            generation_points_node_x = generation_df[
-                                variables_header_node_x
-                            ].values
-                            generation_points_y = generation_df[
-                                variables_header_y
-                            ].values
-                            generation_points_node_y = generation_df[
-                                variables_header_node_y
-                            ].values
+                            generation_df = experiment_record.iloc[starting_point : starting_point + population_size]
+                            generation_points_x = generation_df[variables_header_x].values
+                            generation_points_node_x = generation_df[variables_header_node_x].values
+                            generation_points_y = generation_df[variables_header_y].values
+                            generation_points_node_y = generation_df[variables_header_node_y].values
 
                             result = compute_indicators(
                                 reference_set=all_sets,
@@ -221,17 +189,11 @@ def main():
 
                         generation = 199
                         starting_point = generation * population_size
-                        generation_df = experiment_record.iloc[
-                            starting_point : starting_point + population_size
-                        ]
+                        generation_df = experiment_record.iloc[starting_point : starting_point + population_size]
                         generation_points_x = generation_df[variables_header_x].values
-                        generation_points_node_x = generation_df[
-                            variables_header_node_x
-                        ].values
+                        generation_points_node_x = generation_df[variables_header_node_x].values
                         generation_points_y = generation_df[variables_header_y].values
-                        generation_points_node_y = generation_df[
-                            variables_header_node_y
-                        ].values
+                        generation_points_node_y = generation_df[variables_header_node_y].values
 
                         result = compute_indicators(
                             reference_set=all_sets,
@@ -245,12 +207,8 @@ def main():
                         )
 
                         # Store the results in the DataFrame
-                        results_global_df.loc[indicator_type, solver_name] = result[
-                            "global"
-                        ]["gd"]
-                        results_global_df.loc[
-                            indicator_type + "X", solver_name
-                        ] = result["global"]["gdx"]
+                        results_global_df.loc[indicator_type, solver_name] = result["global"]["gd"]
+                        results_global_df.loc[indicator_type + "X", solver_name] = result["global"]["gdx"]
 
         # Display the table
         plt.figure(figsize=(10, 6))  # Adjust the figure size
@@ -291,9 +249,7 @@ def main():
                     )
 
                     # 折れ線グラフを描く
-                    plt.plot(
-                        generations, gd_values_node, marker=".", label=f"Node {node_id}"
-                    )
+                    plt.plot(generations, gd_values_node, marker=".", label=f"Node {node_id}")
 
                 # グラフのタイトルと軸ラベルを設定
                 # plt.title(f'{indicator_type} values for each node over generations for {tree_name} by {solver_name}')
@@ -306,9 +262,7 @@ def main():
                 # グラフを表示
                 plt.show()
 
-                plt.savefig(
-                    f"{solver_name}_{tree_name}_{indicator_type}_for_each_node.png"
-                )
+                plt.savefig(f"{solver_name}_{tree_name}_{indicator_type}_for_each_node.png")
 
                 # プロットの準備
                 plt.figure()
@@ -324,9 +278,7 @@ def main():
                         & (gdx_values_df["indicator"] == indicator_type)
                     ]
                     gdx_values_node = gdx_values_df_gd["gdx_value_node"].apply(
-                        lambda x: x[node_id]["gdx"]
-                        if x[node_id] is not None
-                        else np.nan
+                        lambda x: x[node_id]["gdx"] if x[node_id] is not None else np.nan
                     )
 
                     # 折れ線グラフを描く
@@ -348,9 +300,7 @@ def main():
                 # グラフを表示
                 plt.show()
 
-                plt.savefig(
-                    f"{solver_name}_{tree_name}_{indicator_type}X_for_each_node.png"
-                )
+                plt.savefig(f"{solver_name}_{tree_name}_{indicator_type}X_for_each_node.png")
 
 
 if __name__ == "__main__":

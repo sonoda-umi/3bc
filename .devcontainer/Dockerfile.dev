@@ -1,0 +1,20 @@
+# Use the official lightweight Python image from Microsoft
+FROM mcr.microsoft.com/devcontainers/python:3.10
+
+# Download development tools
+RUN apt-get update
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates curl git unzip chromium
+
+USER vscode
+
+# Download the latest installer
+RUN wget https://astral.sh/uv/install.sh -O ~/uv-installer.sh
+
+# Run the installer then remove it
+RUN sh ~/uv-installer.sh && rm ~/uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="~/.local/bin/:$PATH"
+
+# Disable development dependencies
+ENV UV_NO_DEV=1

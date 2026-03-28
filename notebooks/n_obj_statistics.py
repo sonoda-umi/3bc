@@ -6,17 +6,18 @@ import sys
 sys.path.append("../")
 
 import os
-from utils.file_utils import parse_meta
 
 import matplotlib
+
+from utils.file_utils import parse_meta
 
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-import ptitprince as pt
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+import ptitprince as pt
+import seaborn as sns
 
 search_dir = "../data"
 exp_dir_pattern = "N-obj"
@@ -82,9 +83,7 @@ for dimension in dimensions:
         df = pd.read_csv(naming_prefix + ".csv").fillna(0)
 
         for solver, sub_df in df.groupby("solver"):
-            print(
-                solver, sub_df[["root", "node_1", "node_2", "node_3", "node_4"]].mean()
-            )
+            print(solver, sub_df[["root", "node_1", "node_2", "node_3", "node_4"]].mean())
 
         fig, axs = plt.subplots(2, 2, figsize=(9, 8), dpi=600)
         fig.suptitle("Distribution of algorithms' sampling points", fontsize=18)

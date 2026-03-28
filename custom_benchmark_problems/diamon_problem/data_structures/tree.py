@@ -39,9 +39,7 @@ class Tree:
     def from_dict(self, tree_data: dict):
         nodes = tree_data["nodes"]
         for node in nodes:
-            self._tree.add_vertex(
-                name=node.pop("id", None), minima=node.pop("minima", None), attrs=node
-            )
+            self._tree.add_vertex(name=node.pop("id", None), minima=node.pop("minima", None), attrs=node)
         if "links" in tree_data:
             edges = tree_data["links"]
             for edge in edges:
@@ -81,9 +79,7 @@ class Tree:
         pass
 
     # Interpret node to iGraph vertex, with attributes and edges appended
-    def add_node(
-        self, minima: float, link: Link = None, parent: Node = None, **kwargs
-    ) -> int:
+    def add_node(self, minima: float, link: Link = None, parent: Node = None, **kwargs) -> int:
         if self._tree.vcount() == 0:
             self._tree.add_vertex(name=self.root_id, minima=0, link=None)
         node_id = self._tree.add_vertex(name=None, minima=minima)

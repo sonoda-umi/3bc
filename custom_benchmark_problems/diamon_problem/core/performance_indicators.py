@@ -7,8 +7,7 @@ import numpy as np
 import pandas as pd
 
 from config import base_path
-from custom_benchmark_problems.diamon_problem.core import algs
-from custom_benchmark_problems.diamon_problem.core import evaluation
+from custom_benchmark_problems.diamon_problem.core import algs, evaluation
 from custom_benchmark_problems.diamon_problem.data_structures.tree import Tree
 from utils import file_utils
 
@@ -49,9 +48,7 @@ def get_local_pareto_set(dimension: int, tree_name: str):
             appearing_time = minimal_time - 1
 
         t = np.linspace(appearing_time, bmp.t_upper_bound(), 100)
-        central_coordinates = np.broadcast_to(
-            central_coordinates, (100, len(central_coordinates))
-        )
+        central_coordinates = np.broadcast_to(central_coordinates, (100, len(central_coordinates)))
         pareto_set = np.insert(central_coordinates, 0, t, axis=1)
         pareto_front = np.apply_along_axis(apply_computing, axis=1, arr=pareto_set)
         pareto_dict[node_id] = {"pareto_set": pareto_set, "pareto_front": pareto_front}
@@ -72,10 +69,7 @@ class PerformanceIndicators:
     def __init__(self):
         pass
 
-    def compute_perpendicular_coordinates(
-        self, sequence_info, solver_log: pd.DataFrame, dimension: int
-    ):
-
+    def compute_perpendicular_coordinates(self, sequence_info, solver_log: pd.DataFrame, dimension: int):
         x_s = ["t", "x1", "x2", "eval_node_id"]
         y_s = ["y1", "y2", "eval_node_id"]
         y_orgs = ["t_org", "y_org", "eval_node_id"]
@@ -103,9 +97,7 @@ class PerformanceIndicators:
             if minimal > node_minimal:
                 minimal = node_minimal
             central_coordinates = bmp.compute_coordinates(symbol_sequence=symbols)
-            step_back = bmp.evaluate(
-                np.insert(central_coordinates, 0, minimal_time - 1)
-            )
+            step_back = bmp.evaluate(np.insert(central_coordinates, 0, minimal_time - 1))
 
             # a = y2 - y1
             # b = x1 - x2
@@ -142,18 +134,12 @@ class PerformanceIndicators:
             }
             node_count += 1
 
-        solver_log[["node_minimal", "a", "b", "c", "div"]] = (
-            solver_log["eval_node_id"].map(node_coef).apply(pd.Series)
-        )
+        solver_log[["node_minimal", "a", "b", "c", "div"]] = solver_log["eval_node_id"].map(node_coef).apply(pd.Series)
 
         print("solver log", solver_log)
 
         solver_log["d_1"] = (
-            abs(
-                solver_log["a"] * solver_log["t_org"]
-                + solver_log["b"] * solver_log["y_org"]
-                + solver_log["c"]
-            )
+            abs(solver_log["a"] * solver_log["t_org"] + solver_log["b"] * solver_log["y_org"] + solver_log["c"])
             / solver_log["div"]
         )
 
@@ -181,9 +167,7 @@ def main():
     test_data_path = Path(
         "data/pop100_50000iter/exp_csvs/GDE3_breadth_base_1_2_StoppingByEvaluations_2023-03-22T10-51-26.821709.csv"
     )
-    demo_log = file_utils.load_evaluation_log(
-        base_path / test_data_path, include_variables=True
-    )
+    demo_log = file_utils.load_evaluation_log(base_path / test_data_path, include_variables=True)
     demo_log = pd.DataFrame(demo_log)
 
     tree_name = "breadth_base_1"
@@ -191,9 +175,7 @@ def main():
 
     tree = Tree(dim_space=dimension)
     tree.from_json(base_path / f"experiment_trees/{tree_name}.json")
-    pi.compute_perpendicular_coordinates(
-        sequence_info=tree.to_sequence(), solver_log=demo_log, dimension=dimension
-    )
+    pi.compute_perpendicular_coordinates(sequence_info=tree.to_sequence(), solver_log=demo_log, dimension=dimension)
 
 
 if __name__ == "__main__":

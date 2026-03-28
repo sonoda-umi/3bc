@@ -22,12 +22,8 @@ for incremental_base in incremental_bases:
             {"id": 4, "minima": -5, "symbol": [1] * (incremental_base + 6)},
         ]
     }
-    with open(
-        f"../experiment_trees/breadth_base{incremental_base}.json", "w"
-    ) as breadth_file:
+    with open(f"../experiment_trees/breadth_base{incremental_base}.json", "w") as breadth_file:
         json.dump(breadth, breadth_file)
 
-    with open(
-        f"../experiment_trees/depth_base{incremental_base}.json", "w"
-    ) as depth_file:
+    with open(f"../experiment_trees/depth_base{incremental_base}.json", "w") as depth_file:
         json.dump(depth, depth_file)

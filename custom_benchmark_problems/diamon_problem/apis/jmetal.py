@@ -5,8 +5,7 @@ import numpy as np
 from jmetal.core.problem import FloatProblem
 from jmetal.core.solution import FloatSolution
 
-from custom_benchmark_problems.diamon_problem.core import evaluation
-from custom_benchmark_problems.diamon_problem.core import n_objectives_problem
+from custom_benchmark_problems.diamon_problem.core import evaluation, n_objectives_problem
 from utils.tracking import MlflowTracker
 
 
@@ -38,9 +37,7 @@ class Diamond(FloatProblem):
             mlflow.log_dict(sequence_info, "sequence.json")
 
     def evaluate(self, solution: FloatSolution) -> FloatSolution:
-        eval_results = self.problem.evaluate(
-            solution_variables=np.array(solution.variables, dtype="float64")
-        )
+        eval_results = self.problem.evaluate(solution_variables=np.array(solution.variables, dtype="float64"))
         solution.objectives[0] = eval_results[0]
         solution.objectives[1] = eval_results[1]
         if self.enable_tracking:
@@ -79,9 +76,7 @@ class NDiamond(FloatProblem):
         """
         super(NDiamond, self).__init__()
 
-        self.problem_constructor_validator(
-            dime_space=dim_space, n_objectives=n_objectives
-        )
+        self.problem_constructor_validator(dime_space=dim_space, n_objectives=n_objectives)
 
         # N of variables = dim_space of X + Number of t - 1, N of t = n_objectives - 1
         self.number_of_variables = dim_space + n_objectives - 1
@@ -130,9 +125,7 @@ class NDiamond(FloatProblem):
             raise ValueError("n_objectives should at least be 2")
 
     def evaluate(self, solution: FloatSolution) -> FloatSolution:
-        eval_results = self.problem.n_evaluate(
-            solution_variables=np.array(solution.variables, dtype="float64")
-        )
+        eval_results = self.problem.n_evaluate(solution_variables=np.array(solution.variables, dtype="float64"))
         solution.objectives = eval_results.objective_values.tolist()
         if self.enable_tracking:
             self.tracker.log_step(

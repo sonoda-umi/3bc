@@ -4,9 +4,7 @@ from collections import namedtuple
 import numpy as np
 
 NodeInfo = namedtuple("NodeInfo", ["symbol", "minima", "name"])
-EvaluationResult = namedtuple(
-    "EvaluationResult", ["t", "y", "node_id", "diagonal_length", "unrotated_value"]
-)
+EvaluationResult = namedtuple("EvaluationResult", ["t", "y", "node_id", "diagonal_length", "unrotated_value"])
 ParetoInfo = namedtuple(
     "ParetoInfo",
     ["symbol", "minima", "name", "minima_coordinates", "step_back_coordinates"],
@@ -107,9 +105,7 @@ class BMP:
         for index, symbol in enumerate(symbol_sequence):
             index += 1  # The math index starts from 1
             if abs(symbol) > self.dim_space:
-                raise ValueError(
-                    f"Dimension cannot be greater than axis. Got dimension: {self.dim_space}, axis: {symbol}"
-                )
+                raise ValueError(f"Dimension cannot be greater than axis. Got dimension: {self.dim_space}, axis: {symbol}")
             if symbol != 0:
                 movement_length = np.sign(symbol) * 2.0 / (4.0**index)
                 x = abs(symbol) - 1  # the 1st axis is x0 internally
@@ -134,9 +130,7 @@ class BMP:
             The sign in each dimension
         """
         diff = x - x_s
-        return np.sign(diff) + (
-            diff == 0
-        )  # if x - x_s is 0, set the sign to 1 (by default it's 0).
+        return np.sign(diff) + (diff == 0)  # if x - x_s is 0, set the sign to 1 (by default it's 0).
 
     @staticmethod
     def get_tau(t: float) -> int:
@@ -257,14 +251,10 @@ class BMP:
                             raise Exception("sign error")
 
                         x_s = self.compute_coordinates(symbol_sequence=s_tau.symbol)
-                        M_s = (1.0 - delta_t) * self.f_t_x(tau, x_s, sequences)[
-                            0
-                        ] + delta_t * m_s
+                        M_s = (1.0 - delta_t) * self.f_t_x(tau, x_s, sequences)[0] + delta_t * m_s
                         delta_x = x - x_s
                         h_x_ = self.h_x(x=x, x_s=x_s, tau=tau)
-                        nabla_g = (
-                            self.f_t_x(tau, x_s + h_x_, sequences)[0] - m_s
-                        ) / h_x_
+                        nabla_g = (self.f_t_x(tau, x_s + h_x_, sequences)[0] - m_s) / h_x_
                         diagonal_lengths.append(h_x_)
                         g_s_values.append(M_s + np.dot(nabla_g, delta_x.T))
                         node_ids.append(s_tau.name)

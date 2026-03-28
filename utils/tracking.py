@@ -12,13 +12,11 @@ import pandas as pd
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 
-from config import mlflow_tracking_uri, data_dir
+from config import data_dir, mlflow_tracking_uri
 from utils.data_structures import ExperimentSettings
 from utils.log import Logger
 
-ArgParserFunc = typing.Callable[
-    [typing.Optional[argparse.ArgumentParser]], argparse.Namespace
-]
+ArgParserFunc = typing.Callable[[typing.Optional[argparse.ArgumentParser]], argparse.Namespace]
 
 
 def batch_create_experiments(exp_names: set) -> dict:
@@ -52,9 +50,7 @@ class MlflowTracker:
             if self.experiment_config.experiment_name:
                 experiment_name = self.experiment_config.experiment_name
             else:
-                Logger().debug.info(
-                    "No experiment name set, attempting acquiring from ENV"
-                )
+                Logger().debug.info("No experiment name set, attempting acquiring from ENV")
                 experiment_name = os.getenv("MLFLOW_EXPERIMENT_NAME")
 
             if experiment_name:
@@ -67,7 +63,7 @@ class MlflowTracker:
             mlflow.start_run(run_name=self.run_name)
             artifact_dir = data_dir / "mlflow_artifacts" / "MLproject"
             os.makedirs(artifact_dir, exist_ok=True)
-            mlflow.log_artifact(artifact_dir)
+            mlflow.log_artifact(str(artifact_dir))
             mlflow.log_params(self.experiment_config._asdict())
 
             self.exp_name = experiment_name
@@ -84,7 +80,7 @@ class MlflowTracker:
         eval_node_id: int,
         diagonal_length: float,
         org_objectives: list,
-        constrains: list = None,
+        constrains: list = [],
     ):
         if constrains:
             raise NotImplementedError("Constrains logging is not available yet")
@@ -92,17 +88,10 @@ class MlflowTracker:
             self.create_headers(variables=variables, objectives=objectives)
         if type(diagonal_length) is not int:
             diagonal_length = diagonal_length.tolist()
-        self.step_metrics.append(
-            variables
-            + objectives
-            + [eval_node_id, diagonal_length, self.step]
-            + org_objectives
-        )
+        self.step_metrics.append(variables + objectives + [eval_node_id, diagonal_length, self.step] + org_objectives)
         self.step += 1
 
-    def create_headers(
-        self, variables: list, objectives: list, constrains: list = None
-    ) -> None:
+    def create_headers(self, variables: list, objectives: list, constrains: list = []) -> None:
         if len(objectives) == 2:
             variable_header = [f"x{x + 1}" for x in range(len(variables) - 1)]
             variable_header.insert(0, "t")
@@ -111,24 +100,16 @@ class MlflowTracker:
             # Type for variables: [t_1, t_2, ... t_(n-1), x_1, x_2, ..., x_n]
             # Number of t: n_objectives - 1
             variable_header = [f"t{x + 1}" for x in range(len(objectives) - 1)]
-            variable_header += [
-                f"x{x + 1}" for x in range(len(variables) - len(objectives) + 1)
-            ]
+            variable_header += [f"x{x + 1}" for x in range(len(variables) - len(objectives) + 1)]
         objective_header = [f"y{x + 1}" for x in range(len(objectives))]
-        self.headers = (
-            variable_header
-            + objective_header
-            + ["eval_node_id", "diagonal_length", "step", "t_org", "y_org"]
-        )
+        self.headers = variable_header + objective_header + ["eval_node_id", "diagonal_length", "step", "t_org", "y_org"]
 
     def send_data(self):
         step_metrics_df = pd.DataFrame(self.step_metrics, columns=self.headers)
         algorithm = self.experiment_config.algorithm
         tree_file = self.experiment_config.tree_file.split(".")[0]
         dimension = self.experiment_config.dimension
-        termination_criterion = self.experiment_config.termination_criterion[
-            "criterion_name"
-        ]
+        termination_criterion = self.experiment_config.termination_criterion["criterion_name"]
 
         exp_name = f"{self.exp_name}" if self.exp_name else "default"
         exp_base_path = data_dir / exp_name
@@ -153,7 +134,7 @@ class MlflowTracker:
 
         file_name = dir_name + ".csv"
         step_metrics_df.to_csv(dir_path / file_name)
-        mlflow.log_artifact(local_path=dir_path / file_name)
+        mlflow.log_artifact(local_path=str(dir_path / file_name))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # executed when an error occurred

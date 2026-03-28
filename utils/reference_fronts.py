@@ -2,8 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from custom_benchmark_problems.diamon_problem.core import evaluation
-from custom_benchmark_problems.diamon_problem.core import n_objectives_problem
+from custom_benchmark_problems.diamon_problem.core import evaluation, n_objectives_problem
 from custom_benchmark_problems.diamon_problem.data_structures.tree import Tree
 
 
@@ -37,7 +36,7 @@ class ReferenceFronts:
         # rot_matrix = n_bmp.t_rotation_matrix
         pareto_dict = {}
 
-        def apply_computing(data: np.array):
+        def apply_computing(data: np.ndarray):
             row_data = n_bmp.n_evaluate(data)
             return row_data.objective_values
 
@@ -51,9 +50,7 @@ class ReferenceFronts:
             minimal_time = len(symbols) + 1
 
             # Compute unrotated value
-            step_back = n_bmp.evaluate(
-                np.insert(central_coordinates, 0, minimal_time - 1)
-            )
+            step_back = n_bmp.evaluate(np.insert(central_coordinates, 0, minimal_time - 1))
             unrotated_y = step_back.unrotated_value[1]
 
             # determine if 45 degrees rotation made tilt line Pareto front
@@ -74,9 +71,7 @@ class ReferenceFronts:
             combinations = np.vstack([x.ravel() for x in mesh]).T
             # combinations = combinations @ rot_matrix
 
-            central_coordinates = np.broadcast_to(
-                central_coordinates, (len(combinations), len(central_coordinates))
-            )
+            central_coordinates = np.broadcast_to(central_coordinates, (len(combinations), len(central_coordinates)))
 
             pareto_set = np.concatenate((combinations, central_coordinates), axis=1)
 
@@ -97,16 +92,14 @@ class ReferenceFronts:
             "all_fronts": all_fronts,
         }
 
-    def get_local_pareto_set(
-        self, dimension: int, tree_name: str, resolution: int = 100
-    ):
+    def get_local_pareto_set(self, dimension: int, tree_name: str, resolution: int = 100):
         tree = Tree(dim_space=dimension)
         tree.from_json(f"../experiment_trees/{tree_name}.json")
         sequence_info = tree.to_sequence()
         bmp = evaluation.BMP(sequence_info=sequence_info, dim_space=dimension)
         pareto_dict = {}
 
-        def apply_computing(data: np.array):
+        def apply_computing(data: np.ndarray):
             row_data = bmp.evaluate(data)
             return np.array(
                 [
@@ -125,9 +118,7 @@ class ReferenceFronts:
             minimal_time = len(symbols) + 1
 
             # Compute unrotated value
-            step_back = bmp.evaluate(
-                np.insert(central_coordinates, 0, minimal_time - 1)
-            )
+            step_back = bmp.evaluate(np.insert(central_coordinates, 0, minimal_time - 1))
             unrotated_y = step_back.unrotated_value[1]
             if minimum - unrotated_y <= -1:
                 appearing_time = minimal_time
@@ -136,9 +127,7 @@ class ReferenceFronts:
 
             t = np.linspace(appearing_time, bmp.t_upper_bound(), resolution)
 
-            central_coordinates = np.broadcast_to(
-                central_coordinates, (resolution, len(central_coordinates))
-            )
+            central_coordinates = np.broadcast_to(central_coordinates, (resolution, len(central_coordinates)))
             pareto_set = np.insert(central_coordinates, 0, t, axis=1)
             pareto_front = np.apply_along_axis(apply_computing, axis=1, arr=pareto_set)
             pareto_dict[node_id] = {
