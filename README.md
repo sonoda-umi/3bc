@@ -36,21 +36,22 @@ series = {GECCO '24 Companion}
 ```
 as well as the original 3BC paper:
 ```
-@inproceedings{10.1145/3638530.3654190,
-author = {Liu, Likun and Ota, Ryosuke and Yamamoto, Takahiro and Hamada, Naoki and Sakurai, Daisuke},
-title = {Visualization of Multiobjective Multimodal Benchmarking Based on Basin Connectivity},
-year = {2024},
-isbn = {9798400704956},
+@inproceedings{10.1145/3712255.3734279,
+author = {Ota, Ryosuke and Liu, Likun and Hamada, Naoki and Yamamoto, Takahiro and Tanaka, Shoichiro and Sakurai, Daisuke},
+title = {Towards Benchmarking Multi-Objective Optimization Algorithms Based on the Basin Connectivity},
+year = {2025},
+isbn = {9798400714641},
 publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3638530.3654190},
-doi = {10.1145/3638530.3654190},
+url = {https://doi.org/10.1145/3712255.3734279},
+doi = {10.1145/3712255.3734279},
+abstract = {When applying evolutionary computation for multimodal multiobjective optimization, it is crucial to balance exploration and exploitation: exploring the design space to identify regions that contain Pareto optima and exploiting these regions to converge towards the Pareto optima. When it comes to benchmarking for multi-objective optimization, however, it has been difficult to ensure such a landscape with desired properties. We thus propose to pre-determine the landscape and implement it as a benchmark problem. This framework is named the Benchmarking Based on Basin Connectivity (3BC) and targets continuous optimization. The 3BC suite includes an instance with recursively nested basins, forming a funnel structure, and another instance without nesting. Our implementation is publicly available at https://github.com/dsakurai/benchmark-visualizer.},
 booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference Companion},
-pages = {347–350},
-numpages = {4},
-keywords = {multiobjective optimization, visualization, benchmarking},
-location = {Melbourne, VIC, Australia},
-series = {GECCO '24 Companion}
+pages = {2294–2300},
+numpages = {7},
+keywords = {multi-objective optimization, benchmarking, multimodality},
+location = {NH Malaga Hotel, Malaga, Spain},
+series = {GECCO '25 Companion}
 }
 ```
 
