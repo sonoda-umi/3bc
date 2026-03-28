@@ -113,10 +113,6 @@ if __name__ == "__main__":
     rotate_t = [True]
     for tree in trees:
         for solver in solvers:
-            if solver == "MOEAD":
-                pass
-            else:
-                n_objectives = [2]
             for dimension in dimensions:
                 for n_objective in n_objectives:
                     for termination_criterion in termination_criterions:
