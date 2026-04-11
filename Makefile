@@ -1,7 +1,4 @@
-# ----------------------------------------------------------------              
-# SLACK AUTOMATION - DEVELOPMENT TASKS                                          
-# ----------------------------------------------------------------              
-
+          
 .PHONY: sort check format run test type-check lint                             
 
 # Sort imports using Ruff                                                       

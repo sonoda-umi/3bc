@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/devcontainers/python:3.10
 
 # Download development tools
 RUN apt-get update
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates curl git unzip chromium
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates curl git unzip rake
 
 USER vscode
 

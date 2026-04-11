@@ -86,15 +86,11 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--exp_base_name", type=str, default="N-obj-test")
     parser.add_argument("--output_path", type=str, default="exp_config.yaml")
+    parser.add_argument("--iterations", type=int, default=100000)
     args = parser.parse_args()
     exp_base_name = args.exp_base_name
     output_path = args.output_path
-    # trees = ["experiment_trees/diverse_tree.json"]
-    # trees = []
-    # depth_trees = [f"experiment_trees/depth_base_{i}.json" for i in range(1, 7)]
-    # breadth_trees = [f"experiment_trees/breadth_base_{i}.json" for i in range(1, 7)]
-    # trees.extend(breadth_trees)
-    # trees.extend(depth_trees)
+    iterations = args.iterations
     trees = [
         "n_obj_experiment_trees/breadth.json",
         "n_obj_experiment_trees/depth.json",
@@ -105,8 +101,7 @@ if __name__ == "__main__":
     n_objectives = [2, 3, 4, 5]
     n_objectives.reverse()
     termination_criterions = [
-        # {"criterion_name": "StoppingByTime", "termination_parameter": 200},
-        {"criterion_name": "StoppingByEvaluations", "termination_parameter": 100000},
+        {"criterion_name": "StoppingByEvaluations", "termination_parameter": iterations},
     ]
     counter = 0
     exp_settings = []

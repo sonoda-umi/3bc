@@ -242,7 +242,9 @@ def load_experiment_settings(file_path: Path) -> typing.List[ExperimentSettings]
 
 
 def run_experiment(exp_config: ExperimentSettings, opts):
-    with MlflowTracker(run_name=exp_config.experiment_name, experiment_config=exp_config) as tracker:
+    with MlflowTracker(
+        run_name=exp_config.experiment_name, experiment_config=exp_config, additional_path=opts.additional_path
+    ) as tracker:
         tree = Tree(dim_space=exp_config.dimension)
         tree.from_json(exp_config.tree_file)
         if opts.n_objectives:
@@ -337,4 +339,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_objectives", action="store_true")
     parser.add_argument("--serial", action="store_true")
     parser.add_argument("--disable_tracking", action="store_false")
+    parser.add_argument(
+        "--additional_path", type=str, default="", help="Additional path to add to mlflow tracking, not required"
+    )
     yaml_main(parser.parse_args())

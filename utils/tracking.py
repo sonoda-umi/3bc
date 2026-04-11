@@ -6,6 +6,7 @@ import shutil
 import sys
 import traceback
 import typing
+from pathlib import Path
 
 import mlflow
 import pandas as pd
@@ -20,24 +21,27 @@ ArgParserFunc = typing.Callable[[typing.Optional[argparse.ArgumentParser]], argp
 
 
 def batch_create_experiments(exp_names: set) -> dict:
-    exps = {}
     mlflow.set_tracking_uri(mlflow_tracking_uri)
+    logger = Logger().debug
+
+    exps = {}
     for exp_name in exp_names:
         try:
-            exp_id = mlflow.create_experiment(exp_name)
-            Logger().debug.info(f"Created experiment {exp_name}")
+            exps[exp_name] = mlflow.create_experiment(exp_name)
+            logger.info(f"Created experiment {exp_name}")
+        except MlflowException:
+            experiment = mlflow.get_experiment_by_name(exp_name)
+            exps[exp_name] = experiment.experiment_id if experiment else None
+            logger.info(f"Experiment {exp_name} already exists, skipping...")
 
-        except MlflowException as e:
-            exp_id = mlflow.get_experiment_by_name("exp_name")
-            Logger().debug.info(f"Experiment {exp_name} exists, skipping ...")
-        exps[exp_name] = exp_id
     return exps
 
 
 class MlflowTracker:
-    def __init__(self, run_name: str, experiment_config: ExperimentSettings):
+    def __init__(self, run_name: str, experiment_config: ExperimentSettings, additional_path: str = ""):
         self.run_name = run_name
         self.experiment_config = experiment_config
+        self.additional_path = additional_path
         self.step = 0
         self.headers = None
         self.step_metrics = []
@@ -112,7 +116,10 @@ class MlflowTracker:
         termination_criterion = self.experiment_config.termination_criterion["criterion_name"]
 
         exp_name = f"{self.exp_name}" if self.exp_name else "default"
-        exp_base_path = data_dir / exp_name
+        exp_base_path = data_dir
+        if self.additional_path:
+            exp_base_path = data_dir / Path(self.additional_path)
+        exp_base_path = exp_base_path / exp_name
 
         dir_name = (
             f"{algorithm}_"

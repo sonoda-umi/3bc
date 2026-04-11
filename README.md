@@ -83,6 +83,24 @@ To run the project without it, we recommend the following environment:
 
 - ``python cli_main.py -f sample.json --dim 2``
 
+### Run the full experiment flow
+
+This repository includes a helper script that generates a configuration, runs the experiment several times,
+collects statistics, and generates plots.
+
+Run it from the project root with:
+
+- ``./run_experiment_flow.sh``
+
+Notes:
+
+- ``run_experiment_flow.sh`` uses ``utils/generate_experiment_config_n_obj.py`` to create
+  ``experiment_config-N-obj.yaml``.
+- It runs ``yaml_main_parallel.py`` with the generated config and a timestamp-based
+  ``additional_path`` to separate output directories.
+- After experiments complete, it calls ``utils/generate_stats_file.py`` and then
+  ``notebooks/rainplot_only_ploty_20260123.py`` to produce summary figures.
+
 ### Run with jupyter notebook
 
 We keep a sample experiment in ``sample_experiment.ipynb``.
