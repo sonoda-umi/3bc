@@ -13,17 +13,24 @@ import pandas as pd
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 
-from config import data_dir, mlflow_tracking_uri
+from config import data_dir, mlflow_tracking_base_uri
 from utils.data_structures import ExperimentSettings
 from utils.log import Logger
 
 ArgParserFunc = typing.Callable[[typing.Optional[argparse.ArgumentParser]], argparse.Namespace]
 
 
-def batch_create_experiments(exp_names: set) -> dict:
+def create_tracking_uri(additional_path: str = "") -> str:
+    mlflow_tracking_uri = mlflow_tracking_base_uri
+    if additional_path:
+        mlflow_tracking_uri = mlflow_tracking_base_uri / additional_path
+    mlflow_tracking_uri = mlflow_tracking_uri / "mlflow"
+    return str(mlflow_tracking_uri)
+
+def batch_create_experiments(exp_names: set, additional_path: str = "") -> dict:
+    mlflow_tracking_uri = create_tracking_uri(additional_path)
     mlflow.set_tracking_uri(mlflow_tracking_uri)
     logger = Logger().debug
-
     exps = {}
     for exp_name in exp_names:
         try:
@@ -50,6 +57,7 @@ class MlflowTracker:
     def __enter__(self):
         try:
             client = MlflowClient()
+            mlflow_tracking_uri = create_tracking_uri(self.additional_path)
             mlflow.set_tracking_uri(mlflow_tracking_uri)
             if self.experiment_config.experiment_name:
                 experiment_name = self.experiment_config.experiment_name

@@ -3,7 +3,8 @@ FROM mcr.microsoft.com/devcontainers/python:3.10
 
 # Download development tools
 RUN apt-get update
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates curl git unzip rake
+# Chromium is required for the plotly rainplot notebook, and rake is required for the rake task that generates the data for the rainplot notebook
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates curl git unzip chromium rake
 
 USER vscode
 

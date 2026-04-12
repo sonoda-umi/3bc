@@ -19,12 +19,6 @@ from utils.file_utils import parse_meta
 
 
 def get_exps_meta(search_dir, exp_dir_pattern):
-    # subdirs = [
-    #     os.path.join(search_dir, d)
-    #     for d in os.listdir(search_dir)
-    #     if os.path.isdir(os.path.join(search_dir, d)) and d.startswith(exp_dir_pattern)
-    # ]
-
     subdirs = []
     for root, sub_dirs, files in os.walk(search_dir):
         for sub_dir in sub_dirs:

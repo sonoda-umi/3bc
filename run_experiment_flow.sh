@@ -24,4 +24,4 @@ python utils/generate_stats_file.py --search_dir data/$TIMESTAMP
 
 
 # Generate figures
-python notebooks/rainplot_only_ploty_20260123.py --search_dir stats_output --gens $PLOT_GENERATION
+python notebooks/rainplot_only_ploty_20260123.py --search_dir stats_output --gens $PLOT_GENERATION_RANGE

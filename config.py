@@ -63,4 +63,4 @@ solver_info = {
 
 project_base = Path(__file__).parent.absolute()
 data_dir = project_base / "data"
-mlflow_tracking_uri = project_base / "data" / "mlflow"
+mlflow_tracking_base_uri = project_base / "data"

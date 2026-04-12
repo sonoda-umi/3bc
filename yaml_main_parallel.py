@@ -292,7 +292,7 @@ def yaml_main(opts):
             exp_config = exp_config._replace(experiment_name=opts.exp_name)
         exp_name_set.add(exp_config.experiment_name)
 
-    batch_create_experiments(exp_names=exp_name_set)
+    batch_create_experiments(exp_names=exp_name_set, additional_path=opts.additional_path)
 
     if opts.serial:
         for exp_config in tqdm(exps_config, desc="Experiment progress"):
