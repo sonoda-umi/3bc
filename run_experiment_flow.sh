@@ -3,13 +3,13 @@
 # Define the number of times you want to run the command
 # A single run generates one combination of all dimensions x algorithms
 NUM_TIMES=3
-PLOT_GENERATION_RANGE=10-12
+PLOT_GENERATION_RANGE=90-100
 
 TIMESTAMP=$(date --iso-8601=seconds)
 
 
 # Generate the experiment configuration file
-python utils/generate_experiment_config_n_obj.py --output_path experiment_config-N-obj.yaml --iterations 100
+python utils/generate_experiment_config_n_obj.py --output_path experiment_config-N-obj.yaml --iterations 1000
 
 
 # Loop through and run the command
