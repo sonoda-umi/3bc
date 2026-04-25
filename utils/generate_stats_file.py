@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from utils.arg_utils import parse_gen_range
 from utils.file_utils import parse_meta
 
 
@@ -48,7 +49,6 @@ def parse_result_file(exp_file_path: str):
 
 
 def run_data(dimension, n_objectives, tree, generation: int, solvers, exp_df):
-    print(f"Processing dimension {dimension}, n_objectives {n_objectives}, tree {tree}, generation {generation}")
     naming_prefix = f"dim{dimension}_objs{n_objectives}_tree_{tree.split('.')[0]}"
     stat_res = []
     for solver in solvers:
@@ -84,20 +84,20 @@ def main():
     parser.add_argument("--search_dir", type=str, default="data")
     parser.add_argument("--exp_dir_pattern", type=str, default="N-obj")
     parser.add_argument("--output_dir", type=str, default="stats_output")
-    parser.add_argument("--max_gen", type=int, default=50)
+    parser.add_argument("--gens", type=str)
     parser.add_argument("--step", type=int, default=1)
     args = parser.parse_args()
     search_dir = args.search_dir
     exp_dir_pattern = args.exp_dir_pattern
     output_dir = args.output_dir
-    max_gen = args.max_gen
     step = args.step
 
     dimensions = [2, 3, 4, 5]
     n_objectives_list = [2, 3, 4, 5]
     trees = ["breadth.json", "depth.json"]
     solvers = ["MOEAD", "NSGAII", "GDE3", "OMOPSO", "IBEA"]
-    gens = range(2, max_gen + 1, step)
+    start, end = parse_gen_range(args.gens)
+    gens = range(start, end, step)
     total_tasks = len(dimensions) * len(n_objectives_list) * len(trees) * len(gens)
 
     exp_df = get_exps_meta(search_dir, exp_dir_pattern)

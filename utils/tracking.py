@@ -27,6 +27,7 @@ def create_tracking_uri(additional_path: str = "") -> str:
     mlflow_tracking_uri = mlflow_tracking_uri / "mlflow"
     return str(mlflow_tracking_uri)
 
+
 def batch_create_experiments(exp_names: set, additional_path: str = "") -> dict:
     mlflow_tracking_uri = create_tracking_uri(additional_path)
     mlflow.set_tracking_uri(mlflow_tracking_uri)

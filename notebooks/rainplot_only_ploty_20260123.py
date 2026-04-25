@@ -1,11 +1,15 @@
 import os
-import re
+import sys
 from argparse import ArgumentParser
 
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from tqdm import tqdm
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from utils.arg_utils import parse_gen_range
 
 
 # --- 1. RainCloud Helper Function ---
@@ -161,50 +165,29 @@ def plot_rainclouds(data_df: pd.DataFrame, output_dir: str, gen: int):
             fig.write_image(f"{output_dir}/{solver}_{tree}.png", width=1600, height=400, scale=2)
 
 
-def parse_gen_range(gen_range_str: str) -> list[int]:
-    gen_range_str = gen_range_str.strip()
-
-    # Strict pattern: digits-digits (no spaces, no negatives unless you want them)
-    if not re.fullmatch(r"\d+-\d+", gen_range_str):
-        raise ValueError(f"Invalid format: '{gen_range_str}'. Expected 'start-end' (e.g., '10-100').")
-
-    start_str, end_str = gen_range_str.split("-")
-
-    try:
-        start = int(start_str)
-        end = int(end_str)
-    except ValueError:
-        raise ValueError(f"Non-integer values in range: '{gen_range_str}'")
-
-    if start > end:
-        raise ValueError(f"Invalid range: start ({start}) must be <= end ({end})")
-
-    max_size = 1_000_000
-    if end - start + 1 > max_size:
-        raise ValueError(f"Range too large: {end - start + 1} elements (max {max_size})")
-
-    return list(range(start, end + 1))
-
-
 def main():
     parser = ArgumentParser()
     parser.add_argument("--search_dir", type=str, default="stats_output")
     parser.add_argument("--gens", type=str, default="10-100")
     parser.add_argument("--output_dir", type=str, default="figures")
+    parser.add_argument("--step", type=int, default=1)
     args = parser.parse_args()
     search_dir = args.search_dir
-    gens = args.gens
     output_dir = args.output_dir
 
-    plot_gen_range = parse_gen_range(gens)
+    step = args.step
+    start, end = parse_gen_range(args.gens)
+    plot_gen_range = range(start, end, step)
+
     for gen in tqdm(plot_gen_range, desc="Processing generations"):
-        print(f"Processing generation {gen}...")
+        tqdm.write(f"Processing generation {gen}...")
         data_df = load_exp_data(search_dir, gen)
         if data_df.empty:
-            print("No data found for the specified generation.")
+            tqdm.write("No data found for the specified generation.")
             return
 
         plot_rainclouds(data_df, output_dir, gen)
+        print(data_df)
 
 
 if __name__ == "__main__":
