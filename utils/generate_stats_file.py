@@ -48,7 +48,7 @@ def parse_result_file(exp_file_path: str):
     return result_df
 
 
-def run_data(dimension, n_objectives, tree, generation: int, solvers, exp_df):
+def run_data(dimension, n_objectives, tree, generation: int, solvers: list, exp_df: pd.DataFrame, gen_output_dir: str):
     naming_prefix = f"dim{dimension}_objs{n_objectives}_tree_{tree.split('.')[0]}"
     stat_res = []
     for solver in solvers:
@@ -76,7 +76,7 @@ def run_data(dimension, n_objectives, tree, generation: int, solvers, exp_df):
             except Exception:
                 continue
     stat_res = pd.DataFrame(stat_res)
-    stat_res.to_csv(f"stats_output/gen_{generation}/" + naming_prefix + ".csv")
+    stat_res.to_csv(f"{gen_output_dir}/{naming_prefix}.csv")
 
 
 def main():
@@ -116,7 +116,8 @@ def main():
 
     os.makedirs(f"{output_dir}", exist_ok=True)
     for gen in gens:
-        os.makedirs(f"{output_dir}/gen_{gen}", exist_ok=True)
+        gen_output_dir = f"{output_dir}/gen_{gen}"
+        os.makedirs(gen_output_dir, exist_ok=True)
         for dimension in dimensions:
             for n_objectives in n_objectives_list:
                 for tree in trees:
@@ -129,6 +130,7 @@ def main():
                             gen,
                             solvers,
                             exp_df,
+                            gen_output_dir,
                         ),
                         error_callback=print_err,
                         callback=pbar_update,

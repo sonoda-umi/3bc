@@ -12,6 +12,7 @@ import mlflow
 import pandas as pd
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
+from tqdm import tqdm
 
 from config import data_dir, mlflow_tracking_base_uri
 from utils.data_structures import ExperimentSettings
@@ -33,10 +34,11 @@ def batch_create_experiments(exp_names: set, additional_path: str = "") -> dict:
     mlflow.set_tracking_uri(mlflow_tracking_uri)
     logger = Logger().debug
     exps = {}
-    for exp_name in exp_names:
+    for exp_name in tqdm(exp_names, desc="Experiment creating progress:"):
         try:
             exps[exp_name] = mlflow.create_experiment(exp_name)
-            logger.info(f"Created experiment {exp_name}")
+            tqdm.write(f"Created experiment {exp_name}")
+            # logger.info(f"Created experiment {exp_name}")
         except MlflowException:
             experiment = mlflow.get_experiment_by_name(exp_name)
             exps[exp_name] = experiment.experiment_id if experiment else None

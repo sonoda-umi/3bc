@@ -1,0 +1,11 @@
+node_modules
+build/
+dist/
+out/
+.git
+*.log
+*.bin
+/data
+.venv/
+/figures
+/stats_output

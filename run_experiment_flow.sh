@@ -1,12 +1,23 @@
 #!/bin/bash
 
-# Define the number of times you want to run the command
-# A single run generates one combination of all dimensions x algorithms
-# NUM_TIMES=3
-PLOT_GENERATION_RANGE=90-100
-# ITERATIONS=10000
-# POPULATION_SIZE=100
+set -e
 
+# TIMESTAMP=$(date --iso-8601=seconds)
+
+# # Define the number of times you want to run the command
+# # A single run generates one combination of all dimensions x algorithms
+# # A single run generates one combination of all dimensions x algorithms, with where a population is evolved for a number of generations.
+
+MIN_PLOT_GENERATION=180
+MAX_PLOT_GENERATION=200
+PLOT_GENERATION_RANGE=$MIN_PLOT_GENERATION-$MAX_PLOT_GENERATION
+ITERATIONS=$((MAX_PLOT_GENERATION * POPULATION_SIZE))
+
+
+# ################################################
+POPULATION_SIZE=100 # CANNOT BE CHANGED FROM 100
+# ################################################
+# NUM_TIMES=100 # Number of times to run an algorithm
 
 # IFS="-" read -r former latter <<< "$PLOT_GENERATION_RANGE"
 # threshold=$((latter * $POPULATION_SIZE))
@@ -16,7 +27,11 @@ PLOT_GENERATION_RANGE=90-100
 #     exit 0
 # fi
 
-# TIMESTAMP=$(date --iso-8601=seconds)
+
+# # Ensure directories exist
+# mkdir -p "data/$TIMESTAMP"
+# mkdir -p "stats_output/$TIMESTAMP"
+# mkdir -p "figures/$TIMESTAMP"
 
 
 
@@ -31,9 +46,11 @@ PLOT_GENERATION_RANGE=90-100
 #     python yaml_main_parallel.py -f experiment_config-N-obj.yaml --n_objective --additional_path $TIMESTAMP
 # done
 
-# # Generate the stats file
-# python utils/generate_stats_file.py --search_dir data/$TIMESTAMP --gens $PLOT_GENERATION_RANGE
+TIMESTAMP=2026-05-04T13:13:23+08:00
+
+# Generate the stats file
+python utils/generate_stats_file.py --search_dir data/$TIMESTAMP --gens $PLOT_GENERATION_RANGE --output_dir stats_output/$TIMESTAMP
 
 
 # Generate figures
-python notebooks/rainplot_only_ploty_20260123.py --search_dir stats_output --gens $PLOT_GENERATION_RANGE
+python notebooks/rainplot_only_ploty_20260123.py --search_dir stats_output/$TIMESTAMP --gens $PLOT_GENERATION_RANGE

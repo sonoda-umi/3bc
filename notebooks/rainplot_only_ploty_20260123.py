@@ -168,7 +168,7 @@ def plot_rainclouds(data_df: pd.DataFrame, output_dir: str, gen: int):
 def main():
     parser = ArgumentParser()
     parser.add_argument("--search_dir", type=str, default="stats_output")
-    parser.add_argument("--gens", type=str, default="10-100")
+    parser.add_argument("--gens", type=str, default="10-100", help="Generation range in the format 'start-end' (e.g., '10-100'). Generates one figure per generation.")
     parser.add_argument("--output_dir", type=str, default="figures")
     parser.add_argument("--step", type=int, default=1)
     args = parser.parse_args()
