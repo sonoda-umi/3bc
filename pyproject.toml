@@ -1,7 +1,7 @@
 [project]
-name = "benchmark-visualizer"
+name = "3BC"
 version = "0.1.0"
-description = "Add your description here"
+description = "Implementaiton of 3BC and 3BCx benchmark problem"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
