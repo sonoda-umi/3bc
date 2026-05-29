@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from argparse import ArgumentParser
 
@@ -72,9 +73,15 @@ def load_exp_data(search_dir: str, gen: int) -> pd.DataFrame:
                 if file.endswith(".csv"):
                     try:
                         src_file = os.path.join(root, file)
-                        dim = int(file[3])
-                        obj = int(file[9])
-                        tree = file[16:].strip(".csv")
+                        match = re.search(r"dim(\d+)_nobj(\d+)_tree_(.+)\.csv", file)
+                        if match:
+                            dim = int(match.group(1))
+                            obj = int(match.group(2))
+                            tree = match.group(3)
+                        else:
+                            dim = int(file[3])
+                            obj = int(file[9])
+                            tree = file[16:].strip(".csv")
                         df = pd.read_csv(src_file, index_col=0).fillna(0)
                         df["dimension"] = dim
                         df["n_objectives"] = obj
@@ -107,7 +114,7 @@ def plot_rainclouds(data_df: pd.DataFrame, output_dir: str, gen: int):
             )
 
             for idx, (dim, n_objective) in enumerate(dim_n_obj_combs):
-                sub_df = filtered_df[filtered_df["n_objectives"] == n_objective]
+                sub_df = filtered_df[(filtered_df["n_objectives"] == n_objective) & (filtered_df["dimension"] == dim)]
                 if sub_df.empty:
                     continue
 
@@ -168,7 +175,12 @@ def plot_rainclouds(data_df: pd.DataFrame, output_dir: str, gen: int):
 def main():
     parser = ArgumentParser()
     parser.add_argument("--search_dir", type=str, default="stats_output")
-    parser.add_argument("--gens", type=str, default="10-100", help="Generation range in the format 'start-end' (e.g., '10-100'). Generates one figure per generation.")
+    parser.add_argument(
+        "--gens",
+        type=str,
+        default="10-100",
+        help="Generation range in the format 'start-end' (e.g., '10-100'). Generates one figure per generation.",
+    )
     parser.add_argument("--output_dir", type=str, default="figures")
     parser.add_argument("--step", type=int, default=1)
     args = parser.parse_args()
