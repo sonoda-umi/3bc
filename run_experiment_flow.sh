@@ -4,7 +4,7 @@ set -e
 
 TIMESTAMP=$(date --iso-8601=seconds)
 
-NUM_TIMES=1 # Number of times to run an algorithm
+NUM_TIMES=100 # Number of times to run an algorithm
 
 # Define the number of times you want to run the command
 # A single run generates one combination of all dimensions x algorithms
