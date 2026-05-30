@@ -8,6 +8,7 @@ from pathlib import Path
 import yaml
 from jmetal.algorithm.multiobjective import IBEA, MOEAD, NSGAII, OMOPSO
 from jmetal.algorithm.multiobjective.gde3 import GDE3
+from jmetal.algorithm.multiobjective.nsgaiii import NSGAIII, UniformReferenceDirectionFactory
 from jmetal.operator import (
     DifferentialEvolutionCrossover,
     PolynomialMutation,
@@ -30,6 +31,7 @@ from utils.tracking import MlflowTracker, batch_create_experiments
 class Algorithms(Enum):
     gde3 = "GDE3"
     nsgaii = "NSGAII"
+    nsgaiii = "NSGAIII"
     ibea = "IBEA"
     moead = "MOEAD"
     omopso = "OMOPSO"
@@ -92,6 +94,45 @@ def nsgaii(**kwargs):
         offspring_population_size=offspring_population_size,
         mutation=mutation,
         crossover=crossover,
+        termination_criterion=termination_criterion,
+    )
+
+
+def nsgaiii(**kwargs):
+    n_objectives = kwargs["exp_config"].n_objectives
+    parameters = kwargs["parameters"]
+    population_size = parameters["population_size"]
+    mutation_parameters = parameters["mutation"]
+    crossover_parameters = parameters["crossover"]
+    reference_directions = UniformReferenceDirectionFactory(n_objectives, n_points=population_size)
+    if mutation_parameters["probability"] == "n_variables":
+        probability = 1 / kwargs["exp_config"].dimension
+    elif type(mutation_parameters["probability"]) is float:
+        probability = mutation_parameters["probability"]
+    else:
+        raise NotImplementedError("Invalid mutation probability")
+    mutation = PolynomialMutation(
+        probability=probability,
+        distribution_index=mutation_parameters["distribution_index"],
+    )
+    crossover = SBXCrossover(
+        probability=crossover_parameters["probability"],
+        distribution_index=crossover_parameters["distribution_index"],
+    )
+    stopping_criterion = kwargs["termination_criterion"]
+    if stopping_criterion["criterion_name"] == "StoppingByTime":
+        termination_criterion = StoppingByTime(stopping_criterion["termination_parameter"])
+    elif stopping_criterion["criterion_name"] == "StoppingByEvaluations":
+        termination_criterion = StoppingByEvaluations(stopping_criterion["termination_parameter"])
+    else:
+        raise NotImplementedError("Termination criterion not supported")
+
+    return NSGAIII(
+        problem=kwargs["problem"],
+        population_size=population_size,
+        mutation=mutation,
+        crossover=crossover,
+        reference_directions=reference_directions,
         termination_criterion=termination_criterion,
     )
 

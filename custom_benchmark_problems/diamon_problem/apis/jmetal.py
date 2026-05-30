@@ -18,11 +18,8 @@ class Diamond(FloatProblem):
         tracker: Optional[MlflowTracker] = None,
     ):
         super(Diamond, self).__init__()
-        self.number_of_variables = dim_space + 1
-        self.number_of_objectives = 2
-        self.number_of_constraints = 0
+        self.dim_space = dim_space
         self.problem = evaluation.BMP(sequence_info=sequence_info, dim_space=dim_space)
-
         self.obj_directions = [self.MINIMIZE]
         self.obj_labels = ["f(x)"]
         self.lower_bound = dim_space * [-1.0]
@@ -35,6 +32,15 @@ class Diamond(FloatProblem):
             self.tracking_list = []
             self.tracker = tracker
             mlflow.log_dict(sequence_info, "sequence.json")
+
+    def number_of_variables(self):
+        return self.dim_space + 1
+
+    def number_of_objectives(self):
+        return 2
+
+    def number_of_constraints(self):
+        return 0
 
     def evaluate(self, solution: FloatSolution) -> FloatSolution:
         eval_results = self.problem.evaluate(solution_variables=np.array(solution.variables, dtype="float64"))
@@ -50,7 +56,7 @@ class Diamond(FloatProblem):
             )
         return solution
 
-    def get_name(self) -> str:
+    def name(self) -> str:
         return "diamond"
 
 
@@ -75,13 +81,9 @@ class NDiamond(FloatProblem):
         tracker : tracker
         """
         super(NDiamond, self).__init__()
-
+        self.dim_space = dim_space
+        self.n_objectives = n_objectives
         self.problem_constructor_validator(dime_space=dim_space, n_objectives=n_objectives)
-
-        # N of variables = dim_space of X + Number of t - 1, N of t = n_objectives - 1
-        self.number_of_variables = dim_space + n_objectives - 1
-        self.number_of_objectives = n_objectives
-        self.number_of_constraints = 0
 
         # Problem instance for N-objectives BMP
         self.problem = n_objectives_problem.NBMP(
@@ -113,6 +115,16 @@ class NDiamond(FloatProblem):
             self.tracker = tracker
             mlflow.log_dict(sequence_info, "sequence.json")
 
+    # N of variables = dim_space of X + Number of t - 1, N of t = n_objectives - 1
+    def number_of_variables(self):
+        return self.dim_space + self.n_objectives - 1
+
+    def number_of_objectives(self):
+        return self.n_objectives
+
+    def number_of_constraints(self):
+        return 0
+
     @staticmethod
     def problem_constructor_validator(dime_space: int, n_objectives: int):
         if type(dime_space) is not int:
@@ -137,5 +149,5 @@ class NDiamond(FloatProblem):
             )
         return solution
 
-    def get_name(self) -> str:
+    def name(self) -> str:
         return "n-diamond"

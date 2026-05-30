@@ -21,6 +21,20 @@ def compose_solver_settings(solver_name) -> dict:
                 "distribution_index": 20,
             },
         }
+    elif solver_name == "NSGAIII":
+        settings = {
+            "population_size": 100,
+            "mutation": {
+                "mutation": "PolynomialMutation",
+                "probability": "n_variables",
+                "distribution_index": 20,
+            },
+            "crossover": {
+                "crossover": "SBXCrossover",
+                "probability": 1.0,
+                "distribution_index": 20,
+            },
+        }
     elif solver_name == "IBEA":
         settings = {
             "kappa": 1.0,
@@ -95,7 +109,8 @@ if __name__ == "__main__":
         "n_obj_experiment_trees/breadth.json",
         "n_obj_experiment_trees/depth.json",
     ]
-    solvers = ["MOEAD", "GDE3", "NSGAII", "IBEA", "OMOPSO"]
+    solvers = ["MOEAD", "GDE3", "NSGAII", "NSGAIII", "IBEA", "OMOPSO"]
+    solvers = ["NSGAIII"]
     dimensions = [2, 3, 4, 5]
     dimensions.reverse()
     n_objectives = [2, 3, 4, 5]
