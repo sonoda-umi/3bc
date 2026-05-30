@@ -4,13 +4,13 @@ set -e
 
 TIMESTAMP=$(date --iso-8601=seconds)
 
-NUM_TIMES=100 # Number of times to run an algorithm
+NUM_TIMES=1 # Number of times to run an algorithm
 
 # Define the number of times you want to run the command
 # A single run generates one combination of all dimensions x algorithms
 # A single run generates one combination of all dimensions x algorithms, with where a population is evolved for a number of generations.
 MIN_PLOT_GENERATION=180
-MAX_PLOT_GENERATION=200
+MAX_PLOT_GENERATION=300
 PLOT_GENERATION_RANGE=$MIN_PLOT_GENERATION-$MAX_PLOT_GENERATION
 
 # ################################################

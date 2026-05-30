@@ -110,7 +110,7 @@ if __name__ == "__main__":
         "n_obj_experiment_trees/depth.json",
     ]
     solvers = ["MOEAD", "GDE3", "NSGAII", "NSGAIII", "IBEA", "OMOPSO"]
-    solvers = ["NSGAIII"]
+    solvers = ["MOEAD", "IBEA", "NSGAIII"]
     dimensions = [2, 3, 4, 5]
     dimensions.reverse()
     n_objectives = [2, 3, 4, 5]
