@@ -110,10 +110,11 @@ if __name__ == "__main__":
         "n_obj_experiment_trees/depth.json",
     ]
     solvers = ["MOEAD", "GDE3", "NSGAII", "NSGAIII", "IBEA", "OMOPSO"]
-    solvers = ["MOEAD", "IBEA", "NSGAIII"]
-    dimensions = [2, 3, 4, 5]
+    solvers = ["MOEAD", "IBEA", "NSGAII", "NSGAIII"]
+    dimensions = [2, 3, 4, 5, 6, 7, 8, 9]
     dimensions.reverse()
-    n_objectives = [2, 3, 4, 5]
+    n_objectives = [2, 3, 4, 5, 6, 7, 8, 9]
+    comb_dim = [4,8,10]
     n_objectives.reverse()
     termination_criterions = [
         {"criterion_name": "StoppingByEvaluations", "termination_parameter": iterations},
@@ -125,6 +126,8 @@ if __name__ == "__main__":
         for solver in solvers:
             for dimension in dimensions:
                 for n_objective in n_objectives:
+                    # if dimension + n_objective - 1 not in comb_dim:
+                        # continue
                     for termination_criterion in termination_criterions:
                         for if_rotate_t in rotate_t:
                             exp_settings.append(

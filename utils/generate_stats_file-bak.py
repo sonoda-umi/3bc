@@ -7,6 +7,7 @@ Results are in CSV format and contain counts of evaluations at different tree no
 import multiprocessing
 import os
 import sys
+import traceback
 from argparse import ArgumentParser
 from multiprocessing import Pool
 
@@ -48,24 +49,33 @@ def parse_result_file(exp_file_path: str):
     return result_df
 
 
-def run_data(dimension, n_objectives, tree, generation: int, solvers: list, exp_df: pd.DataFrame, gen_output_dir: str):
+def run_data(dimension, n_objectives, tree, generation: int, solvers: list, exp_meta_list: list, gen_output_dir: str):
     naming_prefix = f"dim{dimension}_objs{n_objectives}_tree_{tree.split('.')[0]}"
     stat_res = []
     for solver in solvers:
-        filtered_df = exp_df[
-            (exp_df["dimension"] == dimension)
-            & (exp_df["n_objectives"] == n_objectives)
-            & (exp_df["solver"] == solver)
-            & (exp_df["tree"] == tree)
-        ]
-        for i, row in filtered_df.iterrows():
-            eval_info = parse_result_file(row["exp_result_file"])
+        # Filter metadata list instead of DataFrame for better multiprocessing compatibility
+        try:
+            filtered_meta = [
+                item for item in exp_meta_list
+                if item["dimension"] == dimension
+                and item["n_objectives"] == n_objectives
+                and item["solver"] == solver
+                and item["tree"] == tree
+            ]
+        except (KeyError, TypeError) as e:
+            print(f"Error filtering metadata: {e}")
+            continue
+            
+        for idx, item in enumerate(filtered_meta):
             try:
+                eval_info = parse_result_file(item["exp_result_file"])
+                if len(eval_info) == 0:
+                    continue
                 vc = eval_info["eval_node_id"][generation * 100 : (generation + 1) * 100].value_counts()
                 stat_res.append(
                     {
                         "solver": solver,
-                        "exp_index": i,
+                        "exp_index": idx,
                         "root": vc.get(0, 0),
                         "node_1": vc.get(1, 0),
                         "node_2": vc.get(2, 0),
@@ -73,10 +83,13 @@ def run_data(dimension, n_objectives, tree, generation: int, solvers: list, exp_
                         "node_4": vc.get(4, 0),
                     }
                 )
-            except Exception:
-                continue
-    stat_res = pd.DataFrame(stat_res)
-    stat_res.to_csv(f"{gen_output_dir}/{naming_prefix}.csv")
+            except Exception as e:
+                # Silently skip experiments with issues
+                pass
+                
+    if stat_res:
+        stat_res = pd.DataFrame(stat_res)
+        stat_res.to_csv(f"{gen_output_dir}/{naming_prefix}.csv")
 
 
 def main():
@@ -95,12 +108,21 @@ def main():
     dimensions = [2, 3, 4, 5, 6, 7, 8, 9]
     n_objectives_list = [2, 3, 4, 5, 6, 7, 8, 9]
     trees = ["breadth.json", "depth.json"]
-    solvers = ["MOEAD", "NSGAII", "GDE3", "OMOPSO", "IBEA"]
+    solvers = ["MOEAD", "NSGAII", "GDE3", "OMOPSO", "IBEA", "NSGAIII"]
     start, end = parse_gen_range(args.gens)
     gens = range(start, end, step)
     total_tasks = len(dimensions) * len(n_objectives_list) * len(trees) * len(gens)
 
+    print(f"Loading metadata from {search_dir}...")
     exp_df = get_exps_meta(search_dir, exp_dir_pattern)
+    
+    # Convert DataFrame to list of dicts for better multiprocessing compatibility
+    exp_meta_list = exp_df.to_dict('records')
+    
+    print(f"Loaded metadata for {len(exp_meta_list)} experiments")
+    if exp_meta_list:
+        print(f"Metadata columns: {list(exp_meta_list[0].keys())}")
+    print(f"Total tasks to process: {total_tasks}")
 
     cpus = multiprocessing.cpu_count()
     pool = Pool(processes=cpus)
@@ -111,7 +133,9 @@ def main():
         pbar.update()
 
     def print_err(value):
-        print(f"ERR! {value}")
+        print(f"ERR! {type(value).__name__}: {value}")
+        if hasattr(value, '__traceback__'):
+            traceback.print_exception(type(value), value, value.__traceback__)
         pbar.update()
 
     os.makedirs(f"{output_dir}", exist_ok=True)
@@ -129,7 +153,7 @@ def main():
                             tree,
                             gen,
                             solvers,
-                            exp_df,
+                            exp_meta_list,
                             gen_output_dir,
                         ),
                         error_callback=print_err,
@@ -138,6 +162,7 @@ def main():
     pool.close()
     pool.join()
     pbar.close()
+    print(f"Saved stats to {output_dir}")
 
 
 if __name__ == "__main__":

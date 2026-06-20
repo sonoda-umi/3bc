@@ -150,3 +150,23 @@ It is highly recommended to use a reverse proxy application for deployment such 
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details. Note that the repository relies on third-party code, which is subject to their respective licenses.
+
+
+
+# Discussion itmes
+## Observations
+- Breadth tree
+  - NSGA-III tends to find more basins in one run
+  - IBEA tends to find fewer basins in one run
+- Depth tree
+  - NSGA-III tends to go deeper in one run
+- Breadth tree and Depth tree
+  - NSGA-III performs better than other solvers
+  - Solving the problem gets easier when objective dimension increases
+  - MOEA/D works in lower objective dimension(2-3), but stopped working for higher dimension
+  - IBEA suddenly works better in higher dimensions
+
+For dimension 2 (original 3BC) and higher dimensions (3BCx), the breadth tree gets even distritbution of the populations across the basins. And for depth tree, the shallower the basins, the more population it gets from the solvers.
+
+# TODO:
+Change the basins' depth of the breadth tree to same value, and redo exps
